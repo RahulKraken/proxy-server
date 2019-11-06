@@ -1,8 +1,10 @@
 package com.kraken;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -23,10 +25,30 @@ public class ProxyServer {
             // setup streams with the client
 //            setupStreams();
             // send response to the client
-            sendResponse();
+//            sendResponse();
+            fetchPage();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void fetchPage() throws Exception {
+        // fetch -> https://in.pinterest.com/
+        URL url = new URL("https://in.pinterest.com/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        InputStream in = connection.getInputStream();
+        InputStreamReader reader = new InputStreamReader(in);
+        int s = reader.read();
+
+        String res = "";
+        while (s != -1) {
+            res += (char) s;
+            s = reader.read();
+        }
+
+        System.out.println(res);
+
+//        sendResponse(res);
     }
 
     private static void initEverything() throws IOException {
@@ -42,7 +64,8 @@ public class ProxyServer {
         clientOIS = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    private static void sendResponse() throws IOException {
+    private static void sendResponse(String msg) throws IOException {
+        System.out.println(msg);
         try (Socket clientSocket = clientServerSocket.accept()) {
             // experiment
             // show what the browser sent
@@ -56,7 +79,7 @@ public class ProxyServer {
             // send a response now
             // today's date
             Date today = new Date();
-            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n<h1>Hello there!!!</h1>";
+            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + msg;
             clientSocket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
