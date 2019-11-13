@@ -32,10 +32,11 @@ public class ProxyServer {
         }
     }
 
-    private static String fetchPage() throws Exception {
-        URL url = new URL("http://beej.us/");
+    private static String fetchPage(String urlString) throws Exception {
+        URL url = new URL(urlString);
+        System.out.printf("Fetching %s\n", url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        System.out.printf("Connection established with %s \n", url);
+        System.out.printf("Connection established with %s\n", url);
         InputStream in = connection.getInputStream();
         InputStreamReader reader = new InputStreamReader(in);
         System.out.printf("Reading stream from %s\n", url);
@@ -68,17 +69,18 @@ public class ProxyServer {
         try (Socket clientSocket = clientServerSocket.accept()) {
 //            // experiment
 //            // show what the browser sent
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//            String line = reader.readLine();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String line = reader.readLine();
+            String[] parts = line.split(" ");
 //            while (!line.isEmpty()) {
-//                System.out.println(line);
+                System.out.println(line);
 //                line = reader.readLine();
 //            }
 
             // send a response now
             // today's date
-            Date today = new Date();
-            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + fetchPage();
+//            Date today = new Date();
+            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + fetchPage(parts[1].substring(1));
             System.out.println(httpResponse);
             clientSocket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
