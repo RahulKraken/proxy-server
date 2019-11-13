@@ -25,19 +25,20 @@ public class ProxyServer {
             // setup streams with the client
 //            setupStreams();
             // send response to the client
-//            sendResponse();
-            fetchPage();
+            sendResponse();
+//            fetchPage();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void fetchPage() throws Exception {
-        // fetch -> https://in.pinterest.com/
-        URL url = new URL("https://in.pinterest.com/");
+    private static String fetchPage() throws Exception {
+        URL url = new URL("http://beej.us/");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        System.out.printf("Connection established with %s \n", url);
         InputStream in = connection.getInputStream();
         InputStreamReader reader = new InputStreamReader(in);
+        System.out.printf("Reading stream from %s\n", url);
         int s = reader.read();
 
         String res = "";
@@ -45,10 +46,8 @@ public class ProxyServer {
             res += (char) s;
             s = reader.read();
         }
-
-        System.out.println(res);
-
-//        sendResponse(res);
+        System.out.printf("Fetch data complete");
+        return res;
     }
 
     private static void initEverything() throws IOException {
@@ -64,22 +63,23 @@ public class ProxyServer {
         clientOIS = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    private static void sendResponse(String msg) throws IOException {
-        System.out.println(msg);
+    private static void sendResponse() throws IOException {
+//        System.out.println(msg);
         try (Socket clientSocket = clientServerSocket.accept()) {
-            // experiment
-            // show what the browser sent
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String line = reader.readLine();
-            while (!line.isEmpty()) {
-                System.out.println(line);
-                line = reader.readLine();
-            }
+//            // experiment
+//            // show what the browser sent
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//            String line = reader.readLine();
+//            while (!line.isEmpty()) {
+//                System.out.println(line);
+//                line = reader.readLine();
+//            }
 
             // send a response now
             // today's date
             Date today = new Date();
-            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + msg;
+            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + fetchPage();
+            System.out.println(httpResponse);
             clientSocket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
