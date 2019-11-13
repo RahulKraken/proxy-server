@@ -66,25 +66,28 @@ public class ProxyServer {
 
     private static void sendResponse() throws IOException {
 //        System.out.println(msg);
-        try (Socket clientSocket = clientServerSocket.accept()) {
-//            // experiment
-//            // show what the browser sent
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String line = reader.readLine();
-            String[] parts = line.split(" ");
-//            while (!line.isEmpty()) {
-                System.out.println(line);
-//                line = reader.readLine();
-//            }
-
-            // send a response now
-            // today's date
-//            Date today = new Date();
-            String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + fetchPage(parts[1].substring(1));
-            System.out.println(httpResponse);
-            clientSocket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (true) {
+            try (Socket clientSocket = clientServerSocket.accept()) {
+    //            // experiment
+    //            // show what the browser sent
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    String line = reader.readLine();
+                    String[] parts = line.split(" ");
+    //            while (!line.isEmpty()) {
+                    System.out.printf("URL: %s\n", parts[1].substring(1));
+    //                line = reader.readLine();
+    //            }
+    //
+    //                // send a response now
+    //                // today's date
+                Date today = new Date();
+                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + today;
+    //                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + fetchPage(parts[1].substring(1));
+                    System.out.println(httpResponse);
+                    clientSocket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
